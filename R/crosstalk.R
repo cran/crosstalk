@@ -16,8 +16,11 @@ init <- function() {
 crosstalkLibs <- function() {
   list(
     jqueryLib(),
-    htmltools::htmlDependency("crosstalk", packageVersion("crosstalk"),
-      src = system.file("www", package = "crosstalk"),
+    htmltools::htmlDependency(
+      name = "crosstalk",
+      version = packageVersion("crosstalk"),
+      package = "crosstalk",
+      src = "www",
       script = "js/crosstalk.min.js",
       stylesheet = "css/crosstalk.css"
     )
@@ -88,7 +91,15 @@ ClientValue <- R6Class(
   ),
   public = list(
     initialize = function(name, group = "default", session = shiny::getDefaultReactiveDomain()) {
-      private$.session <- session
+      if (!missing(session) || shinyInstalled()) {
+        private$.session <- session
+      } else {
+        # If session wasn't explicitly provided and Shiny isn't installed, we can't use
+        # the default value for session because it uses a shiny:: function. Instead,
+        # set it to NULL. This is hacky and weird but ClientValue doesn't really need
+        # to work well if Shiny isn't installed, it just needs to not throw.
+        private$.session <- NULL
+      }
       private$.name <- name
       private$.group <- group
       private$.qualifiedName <- paste0(".clientValue-", group, "-", name)
@@ -97,6 +108,7 @@ ClientValue <- R6Class(
       private$.session$input[[private$.qualifiedName]]
     },
     sendUpdate = function(value) {
+      stopIfNotShiny("ClientValue$sendUpdate() requires the shiny package")
       private$.session$sendCustomMessage("update-client-value", list(
         name = private$.name,
         group = private$.group,
@@ -130,7 +142,7 @@ createUniqueId <- function (bytes, prefix = "", suffix = "") {
 #'
 #' \describe{
 #'   \item{\code{data}}{
-#'     A data frame-like object, or a Shiny \link[=reactive]{reactive
+#'     A data frame-like object, or a Shiny \link[shiny:reactive]{reactive
 #'     expression} that returns a data frame-like object.
 #'   }
 #'   \item{\code{key}}{
@@ -206,7 +218,7 @@ createUniqueId <- function (bytes, prefix = "", suffix = "") {
 #'   }
 #' }
 #'
-#' @import R6 shiny
+#' @import R6
 #' @export
 SharedData <- R6Class(
   "SharedData",
@@ -223,7 +235,7 @@ SharedData <- R6Class(
       private$.data <- data
       private$.filterCV <- ClientValue$new("filter", group)
       private$.selectionCV <- ClientValue$new("selection", group)
-      private$.rv <- shiny::reactiveValues()
+      private$.rv <- reactiveValues()
       private$.group <- group
 
       if (inherits(key, "formula")) {
@@ -238,13 +250,13 @@ SharedData <- R6Class(
         stop("Unknown key type")
       }
 
-      if (shiny::is.reactive(private$.data)) {
-        observeEvent(private$.data(), {
+      if (is.reactive(private$.data)) {
+        shiny::observeEvent(private$.data(), {
           self$clearSelection()
         })
       }
 
-      domain <- shiny::getDefaultReactiveDomain()
+      domain <- getDefaultReactiveDomain()
       if (!is.null(domain)) {
         observe({
           selection <- private$.selectionCV$get()
@@ -257,7 +269,7 @@ SharedData <- R6Class(
       }
     },
     origData = function() {
-      if (shiny::is.reactive(private$.data)) {
+      if (is.reactive(private$.data)) {
         private$.data()
       } else {
         private$.data
@@ -267,7 +279,7 @@ SharedData <- R6Class(
       private$.group
     },
     key = function() {
-      df <- if (shiny::is.reactive(private$.data)) {
+      df <- if (is.reactive(private$.data)) {
         private$.data()
       } else {
         private$.data
@@ -288,7 +300,7 @@ SharedData <- R6Class(
         character()
     },
     data = function(withSelection = FALSE, withFilter = TRUE, withKey = FALSE) {
-      df <- if (shiny::is.reactive(private$.data)) {
+      df <- if (is.reactive(private$.data)) {
         private$.data()
       } else {
         private$.data
@@ -321,6 +333,8 @@ SharedData <- R6Class(
     # Public API for selection getting/setting. Setting a selection will
     # cause an event to be propagated to the client.
     selection = function(value, ownerId = "") {
+      stopIfNotShiny("SharedData$selection() requires the shiny package")
+
       if (missing(value)) {
         return(private$.rv$selected)
       } else {
@@ -330,7 +344,7 @@ SharedData <- R6Class(
 
         # .updateSelection needs logical array of length nrow(data)
         # .selectionCV$sendUpdate needs character array of keys
-        isolate({
+        shiny::isolate({
           if (is.null(value)) {
             self$.updateSelection(NULL)
             private$.selectionCV$sendUpdate(NULL)
@@ -350,6 +364,7 @@ SharedData <- R6Class(
       }
     },
     clearSelection = function(ownerId = "") {
+      stopIfNotShiny("SharedData$clearSelection() requires the shiny package")
       self$selection(list(), ownerId = "")
     },
     # Update selection without sending event

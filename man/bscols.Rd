@@ -30,6 +30,7 @@ be called directly from the console but is especially designed to work in an
 R Markdown document. Warning: This will bring in all of Bootstrap!
 }
 \examples{
+\donttest{
 library(htmltools)
 
 # If width is unspecified, equal widths will be used
@@ -53,4 +54,4 @@ bscols(widths = c(2, 4),
   div(style = css(width="100\%", height="400px", background_color="blue"))
 )
 }
-
+}

@@ -3,11 +3,12 @@ bootstrapLib <- function(theme = NULL) {
   # environment may use a bootstrap version that has a theme, and
   # we don't want to trump that just for our little controls.
   # Ideally we should find a better solution for this.
-  htmlDependency("bootstrap", "3.3.2",
-    system.file("lib/bootstrap", package = "crosstalk"),
-    script = c(
-      "js/bootstrap.min.js"
-    ),
+  htmlDependency(
+    name = "bootstrap",
+    version = "3.3.2",
+    package = "crosstalk",
+    src = file.path("lib", "bootstrap"),
+    script = "js/bootstrap.min.js",
     stylesheet = if (is.null(theme)) "css/bootstrap.min.css",
     meta = list(viewport = "width=device-width, initial-scale=1")
   )
@@ -15,8 +16,10 @@ bootstrapLib <- function(theme = NULL) {
 
 selectizeLib <- function(bootstrap = TRUE) {
   htmlDependency(
-    "selectize", "0.11.2",
-    system.file("lib/selectize", package = "crosstalk"),
+    name = "selectize",
+    version = "0.11.2",
+    package = "crosstalk",
+    src = "lib/selectize",
     stylesheet = if (bootstrap) "css/selectize.bootstrap3.css",
     script = "js/selectize.min.js"
   )
@@ -24,8 +27,10 @@ selectizeLib <- function(bootstrap = TRUE) {
 
 jqueryLib <- function() {
   htmlDependency(
-    "jquery", "1.11.3",
-    system.file("lib/jquery", package = "crosstalk"),
+    name = "jquery",
+    version = "1.11.3",
+    package = "crosstalk",
+    src = "lib/jquery",
     script = "jquery.min.js"
   )
 }
@@ -33,16 +38,22 @@ jqueryLib <- function() {
 ionrangesliderLibs <- function() {
   list(
     jqueryLib(),
-    htmlDependency("ionrangeslider", "2.1.2",
-      system.file("lib/ionrangeslider", package = "crosstalk"),
+    htmlDependency(
+      name = "ionrangeslider",
+      version = "2.1.2",
+      package = "crosstalk",
+      src = "lib/ionrangeslider",
       script = "js/ion.rangeSlider.min.js",
       # ion.rangeSlider also needs normalize.css, which is already included in
       # Bootstrap.
       stylesheet = c("css/ion.rangeSlider.css",
         "css/ion.rangeSlider.skinShiny.css")
     ),
-    htmlDependency("strftime", "0.9.2",
-      system.file("lib/strftime", package = "crosstalk"),
+    htmlDependency(
+      name = "strftime",
+      version = "0.9.2",
+      package = "crosstalk",
+      src = "lib/strftime",
       script = "strftime-min.js"
     )
   )
@@ -218,23 +229,19 @@ inlineCheckbox <- function(id, value, label) {
 #'   (POSIXt), \code{step} is in seconds.
 #' @param round \code{TRUE} to round all values to the nearest integer;
 #'   \code{FALSE} if no rounding is desired; or an integer to round to that
-#'   number of digits (for example, 1 will round to the nearest 10, and -2 will
-#'   round to the nearest .01). Any rounding will be applied after snapping to
-#'   the nearest step.
+#'   number of decimal places (for example, 1 will round to the nearest 0.1, and
+#'   -2 will round to the nearest 100). Any rounding will be applied after
+#'   snapping to the nearest step.
 #' @param ticks \code{FALSE} to hide tick marks, \code{TRUE} to show them
 #'   according to some simple heuristics.
 #' @param animate \code{TRUE} to show simple animation controls with default
 #'   settings; \code{FALSE} not to; or a custom settings list, such as those
-#'   created using \code{\link{animationOptions}}.
+#'   created using \code{\link[shiny]{animationOptions}}.
 #' @param width The width of the slider control (see
 #'   \code{\link[htmltools]{validateCssUnit}} for valid formats)
 #' @param sep Separator between thousands places in numbers.
 #' @param pre A prefix string to put in front of the value.
 #' @param post A suffix string to put after the value.
-#' @param dragRange This option is used only if it is a range slider (with two
-#'   values). If \code{TRUE} (the default), the range can be dragged. In other
-#'   words, the min and max can be dragged together. If \code{FALSE}, the range
-#'   cannot be dragged.
 #' @param timeFormat Only used if the values are Date or POSIXt objects. A time
 #'   format string, to be passed to the Javascript strftime library. See
 #'   \url{https://github.com/samsonjs/strftime} for more details. The allowed
@@ -247,7 +254,14 @@ inlineCheckbox <- function(id, value, label) {
 #'   \code{"+HHMM"} or \code{"-HHMM"}. If \code{NULL} (the default), times will
 #'   be displayed in the browser's time zone. The value \code{"+0000"} will
 #'   result in UTC time.
-#'
+#' @param dragRange This option is used only if it is a range slider (with two
+#'   values). If \code{TRUE} (the default), the range can be dragged. In other
+#'   words, the min and max can be dragged together. If \code{FALSE}, the range
+#'   cannot be dragged.
+#' @param min The leftmost value of the slider. By default, set to the minimal
+#'   number in input data.
+#' @param max The rightmost value of the slider. By default, set to the maximal
+#'   number in input data.
 #' @examples
 #' ## Only run examples in interactive R sessions
 #' if (interactive()) {
@@ -260,7 +274,7 @@ inlineCheckbox <- function(id, value, label) {
 filter_slider <- function(id, label, sharedData, column, step = NULL,
   round = FALSE, ticks = TRUE, animate = FALSE, width = NULL, sep = ",",
   pre = NULL, post = NULL, timeFormat = NULL,
-  timezone = NULL, dragRange = TRUE)
+  timezone = NULL, dragRange = TRUE, min = NULL, max = NULL)
 {
   # TODO: Check that this works well with factors
   # TODO: Handle empty data frame, NA/NaN/Inf/-Inf values
@@ -272,8 +286,10 @@ filter_slider <- function(id, label, sharedData, column, step = NULL,
   df <- sharedData$data(withKey = TRUE)
   col <- lazyeval::f_eval(column, df)
   values <- na.omit(col)
-  min <- min(values)
-  max <- max(values)
+  if (is.null(min))
+    min <- min(values)
+  if (is.null(max))
+    max <- max(values)
   value <- range(values)
 
   ord <- order(col)
@@ -317,6 +333,10 @@ filter_slider <- function(id, label, sharedData, column, step = NULL,
     dataType <- "number"
   }
 
+  if (isTRUE(round))
+    round <- 0
+  else if (!is.numeric(round))
+    round <- NULL
   step <- findStepSize(min, max, step)
   # Avoid ugliness from floating point errors, e.g.
   # findStepSize(min(quakes$mag), max(quakes$mag), NULL)
@@ -367,6 +387,7 @@ filter_slider <- function(id, label, sharedData, column, step = NULL,
     `data-keyboard` = TRUE,
     `data-keyboard-step` = step / (max - min) * 100,
     `data-drag-interval` = dragRange,
+    `data-round` = round,
     # The following are ignored by the ion.rangeSlider, but are used by Shiny.
     `data-data-type` = dataType,
     `data-time-format` = timeFormat,
@@ -396,7 +417,7 @@ filter_slider <- function(id, label, sharedData, column, step = NULL,
 
   # Add animation buttons
   if (identical(animate, TRUE))
-    animate <- animationOptions()
+    animate <- shiny::animationOptions()
 
   if (!is.null(animate) && !identical(animate, FALSE)) {
     if (is.null(animate$playButton))
@@ -473,6 +494,7 @@ animation_options <- function(interval=1000,
 #' @return A \code{\link[htmltools]{browsable}} HTML element.
 #'
 #' @examples
+#' \donttest{
 #' library(htmltools)
 #'
 #' # If width is unspecified, equal widths will be used
@@ -495,6 +517,7 @@ animation_options <- function(interval=1000,
 #'   div(style = css(width="100%", height="400px", background_color="red")),
 #'   div(style = css(width="100%", height="400px", background_color="blue"))
 #' )
+#' }
 #' @export
 bscols <- function(..., widths = NA, device = c("xs", "sm", "md", "lg")) {
   device <- match.arg(device)
