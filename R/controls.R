@@ -1,15 +1,10 @@
-bootstrapLib <- function(theme = NULL) {
-  # Intentionally use an older version of bootstrap. The rendering
-  # environment may use a bootstrap version that has a theme, and
-  # we don't want to trump that just for our little controls.
-  # Ideally we should find a better solution for this.
+bootstrapGrid <- function() {
   htmlDependency(
-    name = "bootstrap",
-    version = "3.3.2",
+    name = "bootstrap-grid",
+    version = "3.4.1", # must be updated with tools/updateBootstrapGrid.R
     package = "crosstalk",
-    src = file.path("lib", "bootstrap"),
-    script = "js/bootstrap.min.js",
-    stylesheet = if (is.null(theme)) "css/bootstrap.min.css",
+    src = "lib/bootstrap",
+    stylesheet = "bootstrap-grid.min.css",
     meta = list(viewport = "width=device-width, initial-scale=1")
   )
 }
@@ -17,7 +12,7 @@ bootstrapLib <- function(theme = NULL) {
 selectizeLib <- function(bootstrap = TRUE) {
   htmlDependency(
     name = "selectize",
-    version = "0.11.2",
+    version = "0.12.4",
     package = "crosstalk",
     src = "lib/selectize",
     stylesheet = if (bootstrap) "css/selectize.bootstrap3.css",
@@ -35,19 +30,16 @@ jqueryLib <- function() {
   )
 }
 
-ionrangesliderLibs <- function() {
+# Essentially the same as shiny:::ionRangeSliderDependency()
+ionRangeSliderLibs <- function() {
   list(
     jqueryLib(),
     htmlDependency(
-      name = "ionrangeslider",
-      version = "2.1.2",
+      "ionrangeslider-javascript",
+      ionRangeSliderVersion,
       package = "crosstalk",
       src = "lib/ionrangeslider",
       script = "js/ion.rangeSlider.min.js",
-      # ion.rangeSlider also needs normalize.css, which is already included in
-      # Bootstrap.
-      stylesheet = c("css/ion.rangeSlider.css",
-        "css/ion.rangeSlider.skinShiny.css")
     ),
     htmlDependency(
       name = "strftime",
@@ -55,9 +47,46 @@ ionrangesliderLibs <- function() {
       package = "crosstalk",
       src = "lib/strftime",
       script = "strftime-min.js"
-    )
+    ),
+    if (is_available("bslib")) {
+      bslib::bs_dependency_defer(ionRangeSliderDependencyCSS)
+    } else {
+      ionRangeSliderDependencyCSS()
+    }
   )
 }
+
+ionRangeSliderDependencyCSS <- function(theme = NULL) {
+  if (!is_bs_theme(theme)) {
+    return(htmlDependency(
+      "ionrangeslider-css",
+      ionRangeSliderVersion,
+      package = "crosstalk",
+      src = "lib/ionrangeslider",
+      stylesheet = "css/ion.rangeSlider.css"
+    ))
+  }
+
+  bslib::bs_dependency(
+    input = list(
+      list(accent = "$component-active-bg"),
+      sass::sass_file(
+        system.file(package = "crosstalk", "lib/ionrangeslider/scss/shiny.scss")
+      )
+    ),
+    theme = theme,
+    name = "ionrangeslider-css",
+    version = ionRangeSliderVersion,
+    cache_key_extra = fastPackageVersion("crosstalk")
+  )
+}
+
+ionRangeSliderVersion <- "2.3.1"
+
+is_bs_theme <- function(x) {
+  is_available("bslib") && bslib::is_bs_theme(x)
+}
+
 
 makeGroupOptions <- function(sharedData, group, allLevels) {
   df <- sharedData$data(
@@ -143,7 +172,7 @@ filter_select <- function(id, label, sharedData, group, allLevels = FALSE,
         )
       )
     ),
-    c(list(jqueryLib(), bootstrapLib(), selectizeLib()), crosstalkLibs())
+    c(list(jqueryLib(), selectizeLib()), crosstalkLibs())
   ))
 }
 
@@ -192,7 +221,7 @@ filter_checkbox <- function(id, label, sharedData, group, allLevels = FALSE, inl
         jsonlite::toJSON(options, dataframe = "columns", pretty = TRUE)
       )
     ),
-    c(list(jqueryLib(), bootstrapLib()), crosstalkLibs())
+    c(list(jqueryLib()), crosstalkLibs())
   ))
 }
 
@@ -372,6 +401,7 @@ filter_slider <- function(id, label, sharedData, column, step = NULL,
   }
 
   sliderProps <- dropNulls(list(
+    `data-skin` = "shiny",
     `data-type` = if (length(value) > 1) "double",
     `data-min` = formatNoSci(min),
     `data-max` = formatNoSci(max),
@@ -442,7 +472,7 @@ filter_slider <- function(id, label, sharedData, column, step = NULL,
 
   htmltools::browsable(attachDependencies(
     sliderTag,
-    c(ionrangesliderLibs(), crosstalkLibs())
+    c(ionRangeSliderLibs(), crosstalkLibs())
   ))
 }
 
@@ -544,7 +574,7 @@ bscols <- function(..., widths = NA, device = c("xs", "sm", "md", "lg")) {
 
   ui <- tags$div(class = "container-fluid crosstalk-bscols",
     # Counteract knitr pre/code output blocks
-    tags$div(class = "fluid-row",
+    tags$div(class = "row",
       unname(mapply(list(...), widths, FUN = function(el, width) {
         div(class = sprintf("col-%s-%s", device, width),
           el
@@ -553,7 +583,7 @@ bscols <- function(..., widths = NA, device = c("xs", "sm", "md", "lg")) {
     )
   )
 
-  browsable(attachDependencies(ui, list(jqueryLib(), bootstrapLib())))
+  browsable(attachDependencies(ui, list(jqueryLib(), bootstrapGrid())))
 }
 
 controlLabel <- function(controlName, label) {
@@ -574,4 +604,13 @@ dropNulls <- function(x) {
 formatNoSci <- function(x) {
   if (is.null(x)) return(NULL)
   format(x, scientific = FALSE, digits = 15)
+}
+
+
+is_available <- function(package, version = NULL) {
+  installed <- nzchar(system.file(package = package))
+  if (is.null(version)) {
+    return(installed)
+  }
+  installed && isTRUE(fastPackageVersion(package) >= version)
 }

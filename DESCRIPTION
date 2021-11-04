@@ -1,7 +1,7 @@
 Package: crosstalk
 Type: Package
 Title: Inter-Widget Interactivity for HTML Widgets
-Version: 1.1.1
+Version: 1.2.0
 Authors@R: c(
     person("Joe", "Cheng", role = "aut", email = "joe@rstudio.com"),
     person("Carson", "Sievert", role = c("aut", "cre"),
@@ -35,13 +35,13 @@ Description: Provides building blocks for allowing HTML widgets to communicate
     supports linked brushing and filtering.
 License: MIT + file LICENSE
 Imports: htmltools (>= 0.3.6), jsonlite, lazyeval, R6
-Suggests: shiny, ggplot2, testthat (>= 2.1.0)
+Suggests: shiny, ggplot2, testthat (>= 2.1.0), sass, bslib
 URL: https://rstudio.github.io/crosstalk/
 BugReports: https://github.com/rstudio/crosstalk/issues
 RoxygenNote: 7.1.1
 Encoding: UTF-8
 NeedsCompilation: no
-Packaged: 2021-01-11 23:28:16 UTC; cpsievert
+Packaged: 2021-11-04 15:35:47 UTC; cpsievert
 Author: Joe Cheng [aut],
   Carson Sievert [aut, cre] (<https://orcid.org/0000-0002-4958-2844>),
   RStudio [cph],
@@ -59,4 +59,4 @@ Author: Joe Cheng [aut],
   Sami Samhuri [ctb, cph] (Javascript strftime library)
 Maintainer: Carson Sievert <carson@rstudio.com>
 Repository: CRAN
-Date/Publication: 2021-01-12 10:00:02 UTC
+Date/Publication: 2021-11-04 16:30:02 UTC
