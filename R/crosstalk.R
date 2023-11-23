@@ -1,3 +1,6 @@
+# @staticimports pkg:staticimports
+#  is_installed get_package_version system_file
+
 #' @import htmltools
 init <- function() {
   htmltools::attachDependencies(
@@ -18,7 +21,7 @@ crosstalkLibs <- function() {
     jqueryLib(),
     htmltools::htmlDependency(
       name = "crosstalk",
-      version = fastPackageVersion("crosstalk"),
+      version = get_package_version("crosstalk"),
       package = "crosstalk",
       src = "www",
       script = "js/crosstalk.min.js",
@@ -27,20 +30,10 @@ crosstalkLibs <- function() {
   )
 }
 
-# Since I/O can be expensive, only utils::packageVersion() if the package isn't already loaded
-fastPackageVersion <- function(pkg) {
-  ns <- .getNamespace(pkg)
-  if (is.null(ns)) {
-    utils::packageVersion(pkg)
-  } else {
-    as.package_version(ns$.__NAMESPACE__.$spec[["version"]])
-  }
-}
-
 #' ClientValue object
 #'
 #' @description
-#' An object that can be used in a \href{https://shiny.rstudio.com/}{Shiny} server
+#' An object that can be used in a \href{https://shiny.posit.co/}{Shiny} server
 #' function to get or set a crosstalk variable that exists on the client. The
 #' client copy of the variable is the canonical copy, so there is no direct
 #' "set" method that immediately changes the value; instead, there is a
@@ -90,6 +83,13 @@ ClientValue <- R6Class(
     #'   session.
     initialize = function(name, group = "default", session = shiny::getDefaultReactiveDomain()) {
       if (!missing(session) || shinyInstalled()) {
+        if (!is.null(session)) {
+          # The name and group should be interpreted as global to the session,
+          # i.e. SharedData in two module instances with the same group name
+          # should be linked. Use the rootScope(), or else get() will prepend
+          # the module ID.
+          session <- session$rootScope()
+        }
         private$.session <- session
       } else {
         # If session wasn't explicitly provided and Shiny isn't installed, we can't use
@@ -212,7 +212,7 @@ SharedData <- R6Class(
 
       domain <- getDefaultReactiveDomain()
       if (!is.null(domain)) {
-        observe({
+        shiny::observe({
           selection <- private$.selectionCV$get()
           if (!is.null(selection) && length(selection) > 0) {
             private$.updateSelection(self$key() %in% selection)

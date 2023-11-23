@@ -1,13 +1,14 @@
-8dc9b51e3287d79814115aac4a996627 *DESCRIPTION
+09e27eb1ec2c31f54e1e360d8da29d98 *DESCRIPTION
 ab30396b0573e2cc7a8f2a3053e2ec18 *LICENSE
 3ed75fea1786a3bc880e021562763259 *LICENSE.note
 3406b52b375060833ba5af4d517da4dc *NAMESPACE
-fcc21bb84706f735ecc34519ea27048b *NEWS.md
-6a0a82b461bd94e9d9e985189eb5f2ff *R/controls.R
-4cd8ccaf5bfb4f45901df7906c2e9f1d *R/crosstalk.R
+91f9daa26f1bae9d9625df361887a3ea *NEWS.md
+60fd70f542e439f8fa83533a733e9ad0 *R/controls.R
+8d4c644c99a977538ab7d4cee4bf5002 *R/crosstalk.R
 25afd621ae5b0dcfbe130dda733bf62e *R/ggplot2.R
-acdf73034b9fc80636414e12827f2961 *R/shiny-shims.R
-a7724062b7ccb87d0354f6f170506be4 *README.md
+76103417ef1685a9a7784938266e0171 *R/shiny-shims.R
+cf1f9d24d986bbcaef54e76e0fa7d03c *R/staticimports.R
+a17245c089c6e4037fc73790e45a33a5 *README.md
 326efc06c420b738c889a65169004c97 *inst/lib/bootstrap/bootstrap-grid.min.css
 e798d49d7823034fd1d422b5616b4d0d *inst/lib/ionrangeslider/css/ion.rangeSlider.css
 359b69b1ad7bdacf3bdf799a5f3ed313 *inst/lib/ionrangeslider/js/ion.rangeSlider.js
@@ -28,8 +29,8 @@ ac38ad19469b8c594246e3f433a9ad53 *inst/lib/selectize/css/selectize.bootstrap3.cs
 66b6e84d85256249d722c6e94143eb73 *inst/www/js/crosstalk.min.js
 7a0a37270ea71dee56cebc627c58ca03 *inst/www/js/crosstalk.min.js.map
 e5410240dcb4f51691eab5f9a62720d7 *inst/www/scss/crosstalk.scss
-09ae5805b432e7706b03dbba418c62fc *man/ClientValue.Rd
-68aa30db5335fa70b50475696ed07af1 *man/SharedData.Rd
+4b861765bd7e05328a5d17164a38b442 *man/ClientValue.Rd
+f5a1ca20d595d6b6abfa15af67f79df5 *man/SharedData.Rd
 0a07a4de568e60dfc289477027d85ac7 *man/bscols.Rd
 593fe27c26dc6bfdfec99b2f30dc618a *man/crosstalkLibs.Rd
 f87989c88ceebe1d25dbf7fe49f734a0 *man/filter_select.Rd
@@ -40,4 +41,4 @@ bdc172bf45d94c183a4dbbc51dab0cda *man/getDefaultReactiveDomain.Rd
 e3ddba06dba4497c44ab1a945db369e5 *man/scale_fill_selection.Rd
 b0837af709d3f3f805ab2f3cf09a4a0b *tests/testthat.R
 113e3497722d008e4785682435a2219f *tests/testthat/test-built.css.R
-469f86751c279bb1022f1b9e0ce3aa85 *tests/testthat/test-crosstalk.R
+5039c6b1a03b794c6a122481ad1a107b *tests/testthat/test-crosstalk.R
