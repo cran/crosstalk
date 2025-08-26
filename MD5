@@ -1,9 +1,9 @@
-09e27eb1ec2c31f54e1e360d8da29d98 *DESCRIPTION
+6e1e0a78c05b05ffd355f04b4a88f9fd *DESCRIPTION
 ab30396b0573e2cc7a8f2a3053e2ec18 *LICENSE
 3ed75fea1786a3bc880e021562763259 *LICENSE.note
 3406b52b375060833ba5af4d517da4dc *NAMESPACE
-91f9daa26f1bae9d9625df361887a3ea *NEWS.md
-60fd70f542e439f8fa83533a733e9ad0 *R/controls.R
+5d3b35a97ae3f2e081114abffbf6ff76 *NEWS.md
+4f07584ba671396f0b050d1f71992ca0 *R/controls.R
 8d4c644c99a977538ab7d4cee4bf5002 *R/crosstalk.R
 25afd621ae5b0dcfbe130dda733bf62e *R/ggplot2.R
 76103417ef1685a9a7784938266e0171 *R/shiny-shims.R
@@ -34,7 +34,7 @@ f5a1ca20d595d6b6abfa15af67f79df5 *man/SharedData.Rd
 0a07a4de568e60dfc289477027d85ac7 *man/bscols.Rd
 593fe27c26dc6bfdfec99b2f30dc618a *man/crosstalkLibs.Rd
 f87989c88ceebe1d25dbf7fe49f734a0 *man/filter_select.Rd
-b91736b2f5c988b7b95d9c1c63ebbc0a *man/filter_slider.Rd
+06774af47df1efa980857eab2146a5de *man/filter_slider.Rd
 bdc172bf45d94c183a4dbbc51dab0cda *man/getDefaultReactiveDomain.Rd
 83e4931a7b4d7a2d9b73bdfadd6faadd *man/is.SharedData.Rd
 0968d42149f42da95156821e62403ff6 *man/maintain_selection.Rd
